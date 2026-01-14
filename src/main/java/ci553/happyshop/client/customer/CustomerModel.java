@@ -97,7 +97,6 @@ public class CustomerModel {
         trolley.add(pNew);
         Collections.sort(trolley, Comparator.comparing(Product::getProductId));
     }
-
     void checkOut() throws IOException, SQLException {
         if(!trolley.isEmpty()){
             // Group the products in the trolley by productId to optimize stock checking
