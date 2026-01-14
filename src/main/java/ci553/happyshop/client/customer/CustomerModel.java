@@ -35,7 +35,9 @@ public class CustomerModel {
     //SELECT productID, description, image, unitPrice,inStock quantity
     void search() throws SQLException {
         String productId = cusView.tfId.getText().trim();
-        if(!productId.isEmpty()){
+        String productName = cusView.tfName.getText().trim();
+
+        if(!productId.isEmpty() && productName.isEmpty()){
             theProduct = databaseRW.searchByProductId(productId); //search database
             if(theProduct != null && theProduct.getStockQuantity()>0){
                 double unitPrice = theProduct.getUnitPrice();
@@ -52,13 +54,34 @@ public class CustomerModel {
                 displayLaSearchResult = "No Product was found with ID " + productId;
                 System.out.println("No Product was found with ID " + productId);
             }
-        }else{
+
+        }
+        else if (!productName.isEmpty() && productId.isEmpty()) {
+            theProduct = databaseRW.searchByProName(productName); //search database
+            if(theProduct != null && theProduct.getStockQuantity()>0){
+                double unitPrice = theProduct.getUnitPrice();
+                String description = theProduct.getProductDescription();
+                int stock = theProduct.getStockQuantity();
+
+                String baseInfo = String.format("Product_Id: %s\n%s,\nPrice: £%.2f", productId, description, unitPrice);
+                String quantityInfo = stock < 100 ? String.format("\n%d units left.", stock) : "";
+                displayLaSearchResult = baseInfo + quantityInfo;
+                System.out.println(displayLaSearchResult);
+            }
+            else{
+                theProduct=null;
+                displayLaSearchResult = "No Product was found with name " + productName;
+                System.out.println("No Product was found with ID " + productName);
+            }
+        }
+        else{
             theProduct=null;
             displayLaSearchResult = "Please type ProductID";
             System.out.println("Please type ProductID.");
         }
         updateView();
     }
+
 
     void addToTrolley(){
         if(theProduct!= null){
@@ -95,6 +118,7 @@ public class CustomerModel {
                 theProduct.getStockQuantity());
 
         trolley.add(pNew);
+        // Display products in ascending order
         Collections.sort(trolley, Comparator.comparing(Product::getProductId));
     }
     void checkOut() throws IOException, SQLException {

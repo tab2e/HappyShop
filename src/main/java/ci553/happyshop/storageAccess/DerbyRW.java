@@ -34,7 +34,7 @@ public class DerbyRW implements DatabaseRW {
         if (product != null) {
             productList.add(product);
         } else { // If no products found by ID, searching by product name
-            productList = searchByProName(keyword);
+            product = searchByProName(keyword);
         }
 
         // If still no products found, print a message
@@ -71,8 +71,8 @@ public class DerbyRW implements DatabaseRW {
 
     //helper method
     //search  by product name, return a List of products or null
-    private ArrayList<Product> searchByProName(String name) {
-        ArrayList<Product> productList = new ArrayList<>();
+    public Product searchByProName(String name) {
+        Product product = null;
         String query = "SELECT * FROM ProductTable WHERE LOWER(description) LIKE LOWER(?)";
 
         try (Connection conn = DriverManager.getConnection(dbURL);
@@ -82,11 +82,7 @@ public class DerbyRW implements DatabaseRW {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    productList.add(makeProObjFromDbRecord(rs)); // Add all matching products to list
-                }
-
-                if (productList.isEmpty()) {
-                    System.out.println("Product " + name + " not found.");
+                    product = makeProObjFromDbRecord(rs); // Add all matching products to list
                 }
             }
 
@@ -94,7 +90,7 @@ public class DerbyRW implements DatabaseRW {
             System.out.println("Database query error, search by name: " + name + " " + e.getMessage());
         }
 
-        return productList; // could be empty if no matches
+        return product; // could be empty if no matches
     }
 
     //make a Product object from the database record
