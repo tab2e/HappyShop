@@ -69,8 +69,7 @@ public class DerbyRW implements DatabaseRW {
         return product;
     }
 
-    //helper method
-    //search  by product name, return a List of products or null
+    // Search products by name
     public Product searchByProName(String name) {
         Product product = null;
         String query = "SELECT * FROM ProductTable WHERE LOWER(description) LIKE LOWER(?)";
@@ -80,9 +79,10 @@ public class DerbyRW implements DatabaseRW {
 
             stmt.setString(1, "%" + name.toLowerCase() + "%");
 
+            // Find the desired product and store it
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    product = makeProObjFromDbRecord(rs); // Add all matching products to list
+                    product = makeProObjFromDbRecord(rs);
                 }
             }
 
@@ -90,7 +90,8 @@ public class DerbyRW implements DatabaseRW {
             System.out.println("Database query error, search by name: " + name + " " + e.getMessage());
         }
 
-        return product; // could be empty if no matches
+        // Return the product, even if not found
+        return product;
     }
 
     //make a Product object from the database record

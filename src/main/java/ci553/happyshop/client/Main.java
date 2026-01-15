@@ -12,6 +12,7 @@ import ci553.happyshop.client.warehouse.*;
 import ci553.happyshop.orderManagement.OrderHub;
 import ci553.happyshop.storageAccess.DatabaseRW;
 import ci553.happyshop.storageAccess.DatabaseRWFactory;
+import ci553.happyshop.utility.SoundManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import java.io.IOException;
@@ -42,6 +43,7 @@ public class Main extends Application {
     //starts the system
     @Override
     public void start(Stage window) throws IOException {
+        SoundManager.playAmbience();
         startCustomerClient();
         startPickerClient();
         startOrderTracker();

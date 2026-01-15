@@ -4,6 +4,7 @@ import ci553.happyshop.catalogue.Order;
 import ci553.happyshop.catalogue.Product;
 import ci553.happyshop.storageAccess.DatabaseRW;
 import ci553.happyshop.orderManagement.OrderHub;
+import ci553.happyshop.utility.SoundManager;
 import ci553.happyshop.utility.StorageLocation;
 import ci553.happyshop.utility.ProductListFormatter;
 
@@ -22,7 +23,6 @@ public class CustomerModel {
     public CustomerView cusView;
     public DatabaseRW databaseRW; //Interface type, not specific implementation
                                   //Benefits: Flexibility: Easily change the database implementation.
-
     private Product theProduct =null; // product found from search
     private ArrayList<Product> trolley =  new ArrayList<>(); // a list of products in trolley
 
@@ -57,18 +57,20 @@ public class CustomerModel {
 
         }
         else if (!productName.isEmpty() && productId.isEmpty()) {
-            theProduct = databaseRW.searchByProName(productName); //search database
+            // Search for product by name
+            theProduct = databaseRW.searchByProName(productName);
             if(theProduct != null && theProduct.getStockQuantity()>0){
                 double unitPrice = theProduct.getUnitPrice();
                 String description = theProduct.getProductDescription();
                 int stock = theProduct.getStockQuantity();
-
+                // Gather the product information
                 String baseInfo = String.format("Product_Id: %s\n%s,\nPrice: £%.2f", productId, description, unitPrice);
                 String quantityInfo = stock < 100 ? String.format("\n%d units left.", stock) : "";
                 displayLaSearchResult = baseInfo + quantityInfo;
                 System.out.println(displayLaSearchResult);
             }
             else{
+                // Product not found
                 theProduct=null;
                 displayLaSearchResult = "No Product was found with name " + productName;
                 System.out.println("No Product was found with ID " + productName);
@@ -85,13 +87,7 @@ public class CustomerModel {
 
     void addToTrolley(){
         if(theProduct!= null){
-
-            // trolley.add(theProduct) — Product is appended to the end of the trolley.
-            // To keep the trolley organized, add code here or call a method that:
-            //TODO
-            // 1. Merges items with the same product ID (combining their quantities).
-            // 2. Sorts the products in the trolley by product ID.
-
+            // Organise the trolley
             organiseTrolley();
             displayTaTrolley = ProductListFormatter.buildString(trolley); //build a String for trolley so that we can show it
         }
@@ -111,12 +107,14 @@ public class CustomerModel {
                 return;
             }
         }
+        // Create the new product
         Product pNew = new Product(theProduct.getProductId(),
                 theProduct.getProductDescription(),
                 theProduct.getProductImageName(),
                 theProduct.getUnitPrice(),
                 theProduct.getStockQuantity());
 
+        // Add product to trolley
         trolley.add(pNew);
         // Display products in ascending order
         Collections.sort(trolley, Comparator.comparing(Product::getProductId));
@@ -162,6 +160,10 @@ public class CustomerModel {
                 //You can use the provided RemoveProductNotifier class and its showRemovalMsg method for this purpose.
                 //remember close the message window where appropriate (using method closeNotifierWindow() of RemoveProductNotifier class)
                 displayLaSearchResult = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
+                RemoveProductNotifier removeProductNotifier = new RemoveProductNotifier();
+                removeProductNotifier.cusView = this.cusView;
+                removeProductNotifier.showRemovalMsg(errorMsg.toString());
+                SoundManager.playError(); ///////
                 System.out.println("stock is not enough");
             }
         }
