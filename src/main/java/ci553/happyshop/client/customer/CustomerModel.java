@@ -143,7 +143,7 @@ public class CustomerModel {
                 );
                 System.out.println(displayTaReceipt);
             }
-            else{ // Some products have insufficient stock — build an error message to inform the customer
+            else{ // Tell customer that product stock is insufficient
                 StringBuilder errorMsg = new StringBuilder();
                 for(Product p : insufficientProducts){
                     errorMsg.append("\u2022 "+ p.getProductId()).append(", ")
@@ -152,18 +152,12 @@ public class CustomerModel {
                             .append(p.getOrderedQuantity()).append(" requested)\n");
                 }
                 theProduct=null;
-
-                //TODO
-                // Add the following logic here:
-                // 1. Remove products with insufficient stock from the trolley.
-                // 2. Trigger a message window to notify the customer about the insufficient stock, rather than directly changing displayLaSearchResult.
-                //You can use the provided RemoveProductNotifier class and its showRemovalMsg method for this purpose.
-                //remember close the message window where appropriate (using method closeNotifierWindow() of RemoveProductNotifier class)
                 displayLaSearchResult = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
+                // Notify the customer
                 RemoveProductNotifier removeProductNotifier = new RemoveProductNotifier();
                 removeProductNotifier.cusView = this.cusView;
                 removeProductNotifier.showRemovalMsg(errorMsg.toString());
-                SoundManager.playError(); ///////
+                SoundManager.playError();
                 System.out.println("stock is not enough");
             }
         }
@@ -186,9 +180,15 @@ public class CustomerModel {
                 Product existing = grouped.get(id);
                 existing.setOrderedQuantity(existing.getOrderedQuantity() + p.getOrderedQuantity());
             } else {
-                // Make a shallow copy to avoid modifying the original
-                grouped.put(id,new Product(p.getProductId(),p.getProductDescription(),
-                        p.getProductImageName(),p.getUnitPrice(),p.getStockQuantity()));
+                Product newProduct = new Product(
+                        p.getProductId(),
+                        p.getProductDescription(),
+                        p.getProductImageName(),
+                        p.getUnitPrice(),
+                        p.getStockQuantity()
+                );
+                newProduct.setOrderedQuantity(p.getOrderedQuantity());
+                grouped.put(id,newProduct);
             }
         }
         return new ArrayList<>(grouped.values());
