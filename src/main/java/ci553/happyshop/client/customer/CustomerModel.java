@@ -157,6 +157,7 @@ public class CustomerModel {
                 RemoveProductNotifier removeProductNotifier = new RemoveProductNotifier();
                 removeProductNotifier.cusView = this.cusView;
                 removeProductNotifier.showRemovalMsg(errorMsg.toString());
+                // Play the error sound
                 SoundManager.playError();
                 System.out.println("stock is not enough");
             }
@@ -180,6 +181,7 @@ public class CustomerModel {
                 Product existing = grouped.get(id);
                 existing.setOrderedQuantity(existing.getOrderedQuantity() + p.getOrderedQuantity());
             } else {
+                // Reload product information
                 Product newProduct = new Product(
                         p.getProductId(),
                         p.getProductDescription(),
